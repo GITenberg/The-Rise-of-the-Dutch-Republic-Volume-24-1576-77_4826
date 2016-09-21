@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: LhSOuj8m1GOOZxvwnUx96910wVvTwluh8H9dcv1hekcv8ie9U0SlGT3x5cOwemF8HU8jmXr6EaqgRbEHeV4zjYTObHYF4WH5P+O/igq2GSknKm6fENWLYI4ZJRFQ8gUNrir+/wWSswlCSftVhvOjRMhOcCXhkAuo2TpVIcmRDwcTSTX1ykbB1uNy+D2HbVKe2aHDHztEhFw+S2fzm7gAb3UTtEq+BxHGwQi7yxrhHj/ombTUOACeIdeLlITw9Ms9ETF3lLxamKKt1OLaBUFbOsRS+8chIacbSNObJQb2O0HhRjpcvSRM8hyO2WsLk6l1TMbI00Dkq/QkDH1KYrAiyZv80xSpN7ISBv0KjPiNNfwHbbBahDngoJu/bCk0KPaAl64l8UFlutRsQ5IsEdCTbmPP3xL2RAzy+7EeUt+2Nw07+aCtXyVjYGn28qjCfNxxqLsbYeZSstPNnwJQEgjREWwaz9yKvP+CI+Kx+PjDdmT3yOHTmGOwGxYTJ/wXRfcpeaG72qVOjg+ULO2ZlFVS7UyRhBVmKAo19QsBRmG0DMwDWfxZ07TVWYWGJswcFuLBwt+5S3YbvTkfzsau7FvJAJJAZnfiE75dOVS4H634Kdzgs4DR2/xC2w++0F+a+t8jPQLVBwh9tVAiMB43FwefRuMghM8gL7Csb3yzpwuHUls=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Rise-of-the-Dutch-Republic-Volume-24-1576-77_4826
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
